@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { FeedbackType } from '../types';
+import axios from 'axios'
+import { FeedbackType } from '../types'
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL
 
 export const sendMessage = async (
-  interviewId: string, 
+  interviewId: string,
   message: string,
   isFirstMessage: boolean = false
 ): Promise<{ message: string }> => {
@@ -12,33 +12,39 @@ export const sendMessage = async (
     const response = await axios.post(`${API_URL}/api/interviews/${interviewId}/messages`, {
       message,
       isFirstMessage
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error) {
-    console.error('Error sending message:', error);
-    throw new Error('Failed to send message');
+    console.error('Error sending message:', error)
+    throw new Error('Failed to send message')
   }
-};
+}
 
 export const endInterview = async (interviewId: string): Promise<{ feedback: FeedbackType }> => {
   try {
-    const response = await axios.post(`${API_URL}/api/interviews/${interviewId}/end`);
-    return response.data;
+    const response = await axios.post(`${API_URL}/api/interviews/${interviewId}/end`)
+    return response.data
   } catch (error) {
-    console.error('Error ending interview:', error);
-    throw new Error('Failed to end interview');
+    console.error('Error ending interview:', error)
+    throw new Error('Failed to end interview')
   }
-};
+}
 
-export const startInterview = async (resumeId: string, jobDescriptionId: string): Promise<{ id: string }> => {
+export const startInterview = async (
+  resumeId: string,
+  jobDescriptionId: string,
+  sessionId: string
+): Promise<{ id: string }> => {
   try {
+    const username = `User-${sessionId.slice(0, 8)}`
     const response = await axios.post(`${API_URL}/api/interviews`, {
       resumeId,
-      jobDescriptionId
-    });
-    return response.data;
+      jobDescriptionId,
+      username
+    })
+    return response.data
   } catch (error) {
-    console.error('Error starting interview:', error);
-    throw new Error('Failed to start interview');
+    console.error('Error starting interview:', error)
+    throw new Error('Failed to start interview')
   }
-};
+}
