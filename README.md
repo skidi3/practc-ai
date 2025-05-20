@@ -1,7 +1,8 @@
-<img width="1440" alt="image" src="https://github.com/user-attachments/assets/b59af0d7-ef51-425e-b6da-f4a4a3d15c7b" /># Practc AI - AI-Powered Interview Practice Platform
+# Practc AI - AI-Powered Interview Practice Platform
 
-![Practc AI Banner](<img width="1440" alt="Screenshot 2025-05-20 at 10 51 22 PM" src="https://github.com/user-attachments/assets/ec7f0616-0ae0-412c-9aac-970b27b8fc0e" />
-)
+
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/b59af0d7-ef51-425e-b6da-f4a4a3d15c7b" />
+
 
 Practc AI is an advanced AI-powered interview practice platform that conducts personalized interviews based on your resume and job description, providing comprehensive feedback to help you improve your interview skills.
 
