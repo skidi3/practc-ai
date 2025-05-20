@@ -2,16 +2,39 @@
   # Initial schema setup for Practc AI Interviewer
 
   1. New Tables
-    - `resumes` - Stores uploaded resume files
+    - `resumes` - Stores uploaded resume files and content
     - `job_descriptions` - Stores uploaded job description files
-    - `interviews` - Tracks interview sessions
-    - `messages` - Stores the interview transcript (conversation)
-    - `feedback` - Stores AI-generated feedback after interviews
+    - `interviews` - Tracks interview sessions with username
+    - `messages` - Stores the interview transcript
+    - `feedback` - Stores AI-generated feedback
   
   2. Security
     - Enable RLS on all tables
-    - Add policies for authenticated users
+    - Add policies for authenticated and anonymous users
+    
+  3. Storage
+    - Add storage-related columns
+    - Configure Redis integration
 */
+
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS redis_fdw;
+
+-- Create Redis server configuration
+CREATE SERVER IF NOT EXISTS redis_server
+  FOREIGN DATA WRAPPER redis_fdw
+  OPTIONS (address '127.0.0.1', port '6379');
+
+-- Create user mapping for Redis
+CREATE USER MAPPING IF NOT EXISTS FOR CURRENT_USER
+  SERVER redis_server
+  OPTIONS (password 'your_redis_password');
+
+-- Create foreign table for Redis data
+CREATE FOREIGN TABLE IF NOT EXISTS redis_data (
+  key text,
+  value text
+) SERVER redis_server;
 
 -- Create resumes table
 CREATE TABLE IF NOT EXISTS resumes (
@@ -19,6 +42,8 @@ CREATE TABLE IF NOT EXISTS resumes (
   user_id uuid REFERENCES auth.users(id),
   file_name text NOT NULL,
   file_path text NOT NULL,
+  storage_path text,
+  public_url text,
   file_size integer NOT NULL,
   mime_type text NOT NULL,
   content text,
@@ -32,6 +57,8 @@ CREATE TABLE IF NOT EXISTS job_descriptions (
   user_id uuid REFERENCES auth.users(id),
   file_name text NOT NULL,
   file_path text NOT NULL,
+  storage_path text,
+  public_url text,
   file_size integer NOT NULL,
   mime_type text NOT NULL,
   content text,
@@ -43,6 +70,7 @@ CREATE TABLE IF NOT EXISTS job_descriptions (
 CREATE TABLE IF NOT EXISTS interviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users(id),
+  username text NOT NULL,
   resume_id uuid REFERENCES resumes(id) NOT NULL,
   job_description_id uuid REFERENCES job_descriptions(id) NOT NULL,
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
@@ -74,81 +102,42 @@ ALTER TABLE interviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
 
--- Create policies
+-- Create policies for both authenticated and anonymous users
 -- Resumes policies
-CREATE POLICY "Users can create their own resumes"
+CREATE POLICY "Allow access to resumes"
   ON resumes
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can view their own resumes"
-  ON resumes
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+  FOR ALL
+  USING (user_id IS NULL OR auth.uid() = user_id);
 
 -- Job descriptions policies
-CREATE POLICY "Users can create their own job descriptions"
+CREATE POLICY "Allow access to job descriptions"
   ON job_descriptions
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can view their own job descriptions"
-  ON job_descriptions
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+  FOR ALL
+  USING (user_id IS NULL OR auth.uid() = user_id);
 
 -- Interviews policies
-CREATE POLICY "Users can create their own interviews"
+CREATE POLICY "Allow access to interviews"
   ON interviews
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can view their own interviews"
-  ON interviews
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own interviews"
-  ON interviews
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id);
+  FOR ALL
+  USING (user_id IS NULL OR auth.uid() = user_id);
 
 -- Messages policies
-CREATE POLICY "Users can view messages for their interviews"
+CREATE POLICY "Allow access to messages"
   ON messages
-  FOR SELECT
-  TO authenticated
+  FOR ALL
   USING (
     interview_id IN (
-      SELECT id FROM interviews WHERE user_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "Users can insert messages for their interviews"
-  ON messages
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    interview_id IN (
-      SELECT id FROM interviews WHERE user_id = auth.uid()
+      SELECT id FROM interviews WHERE user_id IS NULL OR user_id = auth.uid()
     )
   );
 
 -- Feedback policies
-CREATE POLICY "Users can view feedback for their interviews"
+CREATE POLICY "Allow access to feedback"
   ON feedback
-  FOR SELECT
-  TO authenticated
+  FOR ALL
   USING (
     interview_id IN (
-      SELECT id FROM interviews WHERE user_id = auth.uid()
+      SELECT id FROM interviews WHERE user_id IS NULL OR user_id = auth.uid()
     )
   );
 
