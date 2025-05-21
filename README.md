@@ -1,6 +1,6 @@
 ## Practc AI - AI-Powered Interview Practice Platform
 
-![Practc AI Banner](https://images.pexels.com/photos/7504837/pexels-photo-7504837.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2)
+![Practc AI Banner](image.png)
 
 Practc AI is an advanced AI-powered interview practice platform that conducts personalized interviews based on your resume and job description, providing comprehensive feedback to help you improve your interview skills.
 
@@ -181,13 +181,10 @@ practc-ai/
 - [ ] Peer review system
 - [ ] Integration with job platforms
 
-## 🎥 Demo
-
-[Watch Demo Video](TODO: record video)
 
 ## 🌐 Live Demo
 
-[Try Practc AI](TODO: live-url)
+[Try Practc AI](https://practc-ai.vercel.app/)
 
 ## 📄 License
 
