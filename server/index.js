@@ -13,7 +13,7 @@ const app = express()
 // Middleware
 
 const corsOptions = {
-  origin: ['https://practc-hnmcv422e-skidi3s-projects.vercel.app'], // allow your frontend domain
+  origin: ['https://practc-ai.vercel.app'], // allow your frontend domain
   credentials: true // allow cookies or Authorization headers
 };
 
