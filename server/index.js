@@ -11,7 +11,13 @@ const isVercel = !!process.env.VERCEL
 const app = express()
 
 // Middleware
-app.use(cors())
+
+const corsOptions = {
+  origin: ['https://practc-hnmcv422e-skidi3s-projects.vercel.app'], // allow your frontend domain
+  credentials: true // allow cookies or Authorization headers
+};
+
+app.use(cors(corsOptions));
 app.use(express.json())
 app.use(rateLimiter)
 
