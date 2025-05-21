@@ -35,13 +35,18 @@ if (cluster.isPrimary) {
   app.use(errorHandler)
 
   // Start server
+if (process.env.VERCEL) {
+  // Export the Express app for Vercel
+  module.exports = app;
+} else {
   app.listen(config.port, () => {
-    console.log(`Worker ${process.pid} started on port ${config.port}`)
+    console.log(`Server started on port ${config.port}`);
     console.log('Environment variables loaded:', {
       SUPABASE_URL: !!process.env.SUPABASE_URL,
       SUPABASE_KEY: !!process.env.SUPABASE_KEY,
       OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
       REDIS_URL: !!process.env.REDIS_URL
-    })
-  })
+    });
+  });
+}
 }
